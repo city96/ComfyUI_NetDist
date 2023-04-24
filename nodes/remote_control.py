@@ -162,7 +162,6 @@ class QueueRemote:
 				if new_prompt[i]["class_type"] == "VAELoader":
 					new_prompt[i]["inputs"]["vae_name"] = new_prompt[i]["inputs"]["vae_name"].replace("\\","/")
 				if new_prompt[i]["class_type"] in ["CheckpointLoader","CheckpointLoaderSimple"]:
-					print("!!!!!!!!!!")
 					new_prompt[i]["inputs"]["ckpt_name"] = new_prompt[i]["inputs"]["ckpt_name"].replace("\\","/")
 		for i in to_del:
 			del new_prompt[i]
