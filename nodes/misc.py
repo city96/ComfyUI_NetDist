@@ -21,7 +21,7 @@ class CombineImageBatch:
 
 	def combine_images(self,images_a,images_b):
 		try:
-			out = torch.cat((images_a,images_b))
+			out = torch.cat((images_a,images_b), 0)
 		except RuntimeError:
 			print(f"Imagine size mismatch! {images_a.size()}, {images_b.size()}")
 			out = images_a

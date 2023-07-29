@@ -80,6 +80,7 @@ class QueueRemote:
 					"default": "http://127.0.0.1:8188/",
 				}),
 				"seed": ("INT", {"default": 0, "min": 0, "max": 0xffffffffffffffff}),
+				"batch_override": ("INT", {"default": 0, "min": 0, "max": 8}),
 				"system": (["windows", "posix"],),
 				"enabled": (["true", "false", "remote"],{"default": "true"}),
 				"node_id": ("INT", {"default": 1, "min": 1, "max": 64}),
@@ -94,14 +95,18 @@ class QueueRemote:
 	FUNCTION = "queue_on_remote"
 	CATEGORY = "remote"
 	
-	def queue_on_remote(self, remote_url, seed, system, enabled, node_id, prompt):
+	def queue_on_remote(self, remote_url, seed, batch_override, system, enabled, node_id, prompt):
 		def get_max_batch_size(prompt):
 			bs = 1
 			for node in prompt.keys():
 				if prompt[node]["class_type"] == "EmptyLatentImage":
 					for k,v in prompt[node]["inputs"].items():
 						if k == "batch_size":
-							bs = max(bs,int(v))
+							if batch_override > 0:
+								bs = batch_override
+								prompt[node]["inputs"]["batch_size"] = batch_override
+							else:
+								bs = max(bs,int(v))
 			return bs
 
 		if enabled == "false":
