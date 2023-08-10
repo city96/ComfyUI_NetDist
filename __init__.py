@@ -4,12 +4,16 @@ NODE_DISPLAY_NAME_MAPPINGS = {}
 def remote_control():
 	global NODE_CLASS_MAPPINGS
 	global NODE_DISPLAY_NAME_MAPPINGS
-	from .nodes.remote_control import QueueRemote, FetchRemote
+	from .nodes.remote_control import QueueRemoteChainStart, QueueRemoteChainEnd, QueueRemote, FetchRemote
 	NODE_CLASS_MAPPINGS.update({
+		"QueueRemoteChainStart": QueueRemoteChainStart,
+		"QueueRemoteChainEnd": QueueRemoteChainEnd,
 		"QueueRemote": QueueRemote,
 		"FetchRemote": FetchRemote,
 	})
 	NODE_DISPLAY_NAME_MAPPINGS.update({
+		"QueueRemoteChainStart": "Queue on remote (start of chain)",
+		"QueueRemoteChainEnd": "Queue on remote (end of chain)",
 		"QueueRemote": "Queue on remote",
 		"FetchRemote": "Fetch from remote",
 	})
