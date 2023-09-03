@@ -1,3 +1,7 @@
+mass-process/output
+mass-process/image
+mass-process/*.png
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

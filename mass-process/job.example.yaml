@@ -1,0 +1,28 @@
+workflow: "job.example.png"           # Your actual workflow to distribute.
+job_start: 1                          # Start of job_num, will be incremented
+job_end: 100                          # until it reaches job_end.
+
+workers:                              # List of workers the server will connect to.
+  "RTX3080@LOC":                      # Client nickname. Can be anything.
+    url: "http://127.0.0.1:8188/"     # ComfyUI URL (will be used for API).
+    system: "windows"                 # 'windows' or 'posix'.
+  "P40_0@NET":
+    url: "http://192.168.4.6:8188/"
+    system: "posix"
+  "P40_1@NET":
+    url: "http://192.168.4.6:8288/"
+    system: "posix"
+
+# Replace specific strings in the workflow inputs.
+# Source string should be the one present in your saved workflow.
+# Destination string will be the one the clients see.
+replacement:
+  -
+    src: "http://127.0.0.1:8080/image/openpose/0000.png"
+    dst: "http://127.0.0.1:8080/image/openpose/{job_num:04}.png"
+  -
+    src: "http://192.168.4.4:8080/0000.png"
+    dst: "http://192.168.4.4:8080/{job_num:04}.png"
+  -
+    src: "http://example.lan/upload/output/0000.png"
+    dst: "http://example.lan/upload/output/{job_num:04}.png"
