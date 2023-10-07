@@ -177,6 +177,33 @@ class QueueRemote:
 	CATEGORY = "remote/advanced"
 	TITLE = "Queue on remote (worker)"
 
+	def clear_remote_queue(self, remote_url):
+		def parse_job(data):
+			gid = data[1]
+			client_id = data[3].get("client_id")
+			job_id = data[3].get("job_id")
+			return gid, client_id, job_id
+
+		r = requests.get(remote_url + "queue")
+		r.raise_for_status()
+		queue = r.json()
+
+		to_cancel = []
+		for k in queue.get("queue_pending", []):
+			if k[3].get("client_id") == get_client_id():
+				to_cancel.append(k[1]) # job UUID
+		r = requests.post(
+			remote_url+"queue",
+			json={ "delete" : to_cancel }
+		)
+		r.raise_for_status()
+
+		for k in queue.get("queue_running", []):
+			if k[3].get("client_id") == get_client_id():
+				r = requests.post(remote_url+"interrupt", json={})
+				r.raise_for_status()
+				break
+
 	def queue_on_remote(self, remote_chain, remote_url, batch_override, enabled):
 		batch = batch_override if batch_override > 0 else remote_chain["batch"]
 		remote_chain["seed"] += batch
@@ -275,6 +302,7 @@ class QueueRemote:
 				"job_id": remote_info["job_id"],
 			}
 		}
+		self.clear_remote_queue(remote_url)
 		ar = requests.post(remote_url+"prompt", json=data)
 		ar.raise_for_status()
 		return(remote_chain, remote_info)
