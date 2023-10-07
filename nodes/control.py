@@ -8,6 +8,16 @@ from PIL import Image
 from copy import deepcopy
 
 
+# set global ID once for entire session
+try: GID
+except NameError:
+	GID = ''.join(random.choice("abcdefghijklmnopqrstupvxyz") for x in range(5))
+	print(f"NetDist: Set session ID to '{GID}'")
+def get_client_id():
+	global GID
+	return(f"netdist-{GID}")
+
+
 class FetchRemote():
 	def __init__(self):
 		pass
@@ -104,7 +114,7 @@ class QueueRemoteChainStart:
 			"prompt": prompt,
 			"current_seed": seed+batch,
 			"current_batch": batch,
-			"job_id": f"netdist-{time.time()}"
+			"job_id": f"{get_client_id()}-{int(time.time()*1000*1000)}"
 		}
 		return(remote_chain,)
 
@@ -246,7 +256,7 @@ class QueueRemote:
 
 		data = {
 			"prompt": prompt,
-			"client_id": "netdist",
+			"client_id": get_client_id(),
 			"extra_data": {
 				"job_id": remote_info["job_id"],
 			}
