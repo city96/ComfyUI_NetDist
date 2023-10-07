@@ -24,6 +24,7 @@ class FetchRemote():
 	RETURN_TYPES = ("IMAGE",)
 	FUNCTION = "get_remote_job"
 	CATEGORY = "remote"
+	TITLE = "Fetch from remote"
 
 	def wait_for_job(self,remote_url,job_id):
 		url = remote_url + "history"
@@ -94,6 +95,7 @@ class QueueRemoteChainStart:
 	RETURN_NAMES = ("remote_chain_start",)
 	FUNCTION = "chain_start"
 	CATEGORY = "remote"
+	TITLE = "Queue on remote (start of chain)"
 
 	def chain_start(self, workflow, trigger, batch, seed, prompt):
 		remote_chain = {
@@ -128,6 +130,7 @@ class QueueRemoteChainEnd:
 	RETURN_NAMES = ("seed", "batch")
 	FUNCTION = "chain_end"
 	CATEGORY = "remote"
+	TITLE = "Queue on remote (end of chain)"
 
 	def chain_end(self, remote_chain_end):
 		seed = remote_chain_end["current_seed"]
@@ -163,6 +166,7 @@ class QueueRemote:
 	RETURN_NAMES = ("remote_chain", "remote_info")
 	FUNCTION = "queue_on_remote"
 	CATEGORY = "remote"
+	TITLE = "Queue on remote"
 
 	def queue_on_remote(self, remote_chain, remote_url, system, batch_override, enabled):
 		batch = batch_override if batch_override > 0 else remote_chain["batch"]

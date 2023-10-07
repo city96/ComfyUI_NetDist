@@ -23,6 +23,7 @@ class LoadImageUrl:
 	RETURN_TYPES = ("IMAGE", "MASK")
 	FUNCTION = "load_image_url"
 	CATEGORY = "remote"
+	TITLE = "Load Image (URL)"
 
 	def load_image_url(self, url):
 		with requests.get(url, stream=True) as r:
@@ -58,6 +59,7 @@ class SaveImageUrl:
 	OUTPUT_NODE = True
 	FUNCTION = "save_images"
 	CATEGORY = "remote"
+	TITLE = "Save Image (URL)"
 	
 	def save_images(self, images, url, data_format, filename_prefix="ComfyUI", prompt=None, extra_pnginfo=None):
 		filename = os.path.basename(os.path.normpath(filename_prefix))

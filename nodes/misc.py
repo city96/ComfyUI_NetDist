@@ -18,6 +18,7 @@ class CombineImageBatch:
 	RETURN_NAMES = ("images",)
 	FUNCTION = "combine_images"
 	CATEGORY = "remote"
+	TITLE = "Combine images"
 
 	def combine_images(self,images_a,images_b):
 		try:
