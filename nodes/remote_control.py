@@ -27,10 +27,10 @@ class FetchRemote():
 		}
 
 	RETURN_TYPES = ("IMAGE",)
-	FUNCTION = "get_remote_job"
+	FUNCTION = "get_remote_event"
 	CATEGORY = "remote"
 
-	def wait_for_job(self,remote_url,job_id):
+	def wait_for_event(self,remote_url,event_id):
 		url = remote_url + "history"
 		
 		image_data = None
@@ -42,15 +42,15 @@ class FetchRemote():
 				time.sleep(0.5)
 				continue
 			for i,d in data.items():
-				if d["prompt"][3].get("job_id") == job_id:
+				if d["prompt"][3].get("event_id") == event_id:
 					image_data = d["outputs"][list(d["outputs"].keys())[-1]].get("images")
 			time.sleep(0.5)
 		return image_data
 
 	# remote_info can be none, but the node shouldn't exist at that point
-	def get_remote_job(self, final_image, remote_info):
+	def get_remote_event(self, final_image, remote_info):
 		images = []
-		for i in self.wait_for_job(remote_info["remote_url"],remote_info["job_id"]):
+		for i in self.wait_for_event(remote_info["remote_url"],remote_info["event_id"]):
 			img_url = f"{remote_info['remote_url']}view?filename={i['filename']}&subfolder={i['subfolder']}&type={i['type']}"
 
 			ir = requests.get(img_url, stream=True)
@@ -110,9 +110,9 @@ class QueueRemote:
 			return bs
 
 		if enabled == "false":
-			return (seed,{"remote_url":None,"job_id":None,})
+			return (seed,{"remote_url":None,"event_id":None,})
 		elif enabled == "remote":
-			return (seed+node_id*get_max_batch_size(prompt),{"remote_url":None,"job_id":None,})
+			return (seed+node_id*get_max_batch_size(prompt),{"remote_url":None,"event_id":None,})
 
 		new_prompt = deepcopy(prompt)
 		to_del = []
@@ -171,14 +171,14 @@ class QueueRemote:
 		for i in to_del:
 			del new_prompt[i]
 
-		job_id = f"netdist-{time.time()}"
+		event_id = f"netdist-{time.time()}"
 		data = {
 			"prompt": new_prompt,
 			"client_id": "netdist",
 			"extra_data": {
-				"job_id": job_id,
+				"event_id": event_id,
 			}
 		}
 		ar = requests.post(remote_url+"prompt", json=data)
 		ar.raise_for_status()
-		return (seed,{"remote_url":remote_url,"job_id":job_id})
+		return (seed,{"remote_url":remote_url,"event_id":event_id})
