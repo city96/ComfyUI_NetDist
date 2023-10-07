@@ -1,11 +1,11 @@
-from .control import QueueRemoteChainStart, QueueRemoteChainEnd, QueueRemote, FetchRemote
-from .images import LoadImageUrl, SaveImageUrl
-from .misc import CombineImageBatch
+from .control import QueueRemoteChainStart, QueueRemoteChainEnd, QueueRemoteSingle, QueueRemote, FetchRemote
+from .images import LoadImageUrl, SaveImageUrl, CombineImageBatch
 
 NODE_CLASS_MAPPINGS = {
 	"QueueRemoteChainStart": QueueRemoteChainStart,
-	"QueueRemoteChainEnd": QueueRemoteChainEnd,
 	"QueueRemote": QueueRemote,
+	"QueueRemoteChainEnd": QueueRemoteChainEnd,
+	"QueueRemoteSingle" : QueueRemoteSingle,
 	"FetchRemote": FetchRemote,
 	"LoadImageUrl": LoadImageUrl,
 	"SaveImageUrl": SaveImageUrl,

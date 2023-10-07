@@ -94,7 +94,7 @@ class QueueRemoteChainStart:
 	RETURN_TYPES = ("REMCHAIN",)
 	RETURN_NAMES = ("remote_chain_start",)
 	FUNCTION = "chain_start"
-	CATEGORY = "remote"
+	CATEGORY = "remote/advanced"
 	TITLE = "Queue on remote (start of chain)"
 
 	def chain_start(self, workflow, trigger, batch, seed, prompt):
@@ -129,13 +129,12 @@ class QueueRemoteChainEnd:
 	RETURN_TYPES = ("INT", "INT")
 	RETURN_NAMES = ("seed", "batch")
 	FUNCTION = "chain_end"
-	CATEGORY = "remote"
+	CATEGORY = "remote/advanced"
 	TITLE = "Queue on remote (end of chain)"
 
 	def chain_end(self, remote_chain_end):
 		seed = remote_chain_end["current_seed"]
 		batch = remote_chain_end["current_batch"]
-		print("###########REMQ",seed,batch)
 		return(seed,batch)
 
 	# @classmethod
@@ -165,8 +164,8 @@ class QueueRemote:
 	RETURN_TYPES = ("REMCHAIN", "REMINFO")
 	RETURN_NAMES = ("remote_chain", "remote_info")
 	FUNCTION = "queue_on_remote"
-	CATEGORY = "remote"
-	TITLE = "Queue on remote"
+	CATEGORY = "remote/advanced"
+	TITLE = "Queue on remote (worker)"
 
 	def queue_on_remote(self, remote_chain, remote_url, system, batch_override, enabled):
 		batch = batch_override if batch_override > 0 else remote_chain["batch"]
@@ -212,7 +211,7 @@ class QueueRemote:
 		# find current node and disable all others
 		output_src = None
 		for i in prompt.keys():
-			if prompt[i]["class_type"] == "QueueRemote":
+			if prompt[i]["class_type"] in ["QueueRemote", "QueueRemoteSingle"]:
 				if prompt[i]["inputs"]["remote_url"] == remote_url:
 					prompt[i]["inputs"]["enabled"] = "remote"
 					output_src = i
@@ -255,3 +254,55 @@ class QueueRemote:
 		ar = requests.post(remote_url+"prompt", json=data)
 		ar.raise_for_status()
 		return(remote_chain, remote_info)
+
+
+class QueueRemoteSingle():
+	"""This just abstracts most of the code when only using two GPUs."""
+	def __init__(self):
+		pass
+	@classmethod
+	def INPUT_TYPES(s):
+		return {
+			"required": {
+				"remote_url": ("STRING", {
+					"multiline": False,
+					"default": "http://127.0.0.1:8288/",
+				}),
+				"system": (["windows", "posix"],),
+				"trigger": (["on_change", "always"],),
+				"batch_local": ("INT", {"default": 1, "min": 1, "max": 8}),
+				"batch_remote": ("INT", {"default": 1, "min": 1, "max": 8}),
+				"enabled": (["true", "false", "remote"],{"default": "true"}),
+				"seed": ("INT", {"default": 0, "min": 0, "max": 0xffffffffffffffff}),
+			},
+			"hidden": {
+				"prompt": "PROMPT",
+			},
+		}
+
+	RETURN_TYPES = ("INT", "INT", "REMINFO",)
+	RETURN_NAMES = ("seed", "batch", "remote_info",)
+	FUNCTION = "queue_on_remote"
+	CATEGORY = "remote"
+	TITLE = "Queue on remote (single)"
+
+	def queue_on_remote(self, remote_url, system, trigger, batch_local, batch_remote, enabled, seed, prompt):
+		start = QueueRemoteChainStart()
+		remote_chain, = start.chain_start(
+			workflow = "current",
+			trigger  = trigger,
+			batch    = batch_local,
+			seed     = seed,
+			prompt   = prompt
+		)
+		queue = QueueRemote()
+		remote_chain, remote_info = queue.queue_on_remote(
+			remote_chain   = remote_chain,
+			remote_url     = remote_url,
+			system         = system,
+			batch_override = batch_remote,
+			enabled        = enabled
+		)
+		end = QueueRemoteChainEnd()
+		out_seed, out_batch = end.chain_end(remote_chain)
+		return(out_seed, out_batch, remote_info)
