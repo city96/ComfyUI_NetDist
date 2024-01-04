@@ -1,7 +1,7 @@
 # ComfyUI_NetDist
 Run ComfyUI workflows on multiple local GPUs/networked machines.
 
-Also includes code to utilize in a render farm (save/load images to/from a server).
+[NetDist_2xspeed.webm](https://github.com/city96/ComfyUI_NetDist/assets/125218114/b7ec2fcf-1e51-4b05-ad62-355da2a1bf6d)
 
 ## Install instructions:
 There is currently a single external requirement, which is the `requests` library.
@@ -15,6 +15,47 @@ git clone https://github.com/city96/ComfyUI_NetDist ComfyUI/custom_nodes/ComfyUI
 ```
 
 ## Usage
+
+### Local Remote control
+You will need at least two different ComfyUI instances. You can use two local GPUs by setting different `--port [port]` and `--cuda-device [number]` launch arguments. You'll most likely want `--port 8288 --cuda-device 1`
+
+#### Simple dual-GPU
+
+This is the simplest setup for people who have 2 GPUs or two separate PCs. It only requires two nodes to work.
+
+You can set the local/remote batch size, as well as when the node should trigger (set it to 'always' if it isn't getting executed - i.e. you changed a sampler setting but not the seed.)
+
+If you're running your second instance on a different PC, add `--listen` to your launch arguments and set the correct remote IP (open a terminal window and check with `ipconfig` on windows or `ip a` on linux).
+
+The `FetchRemote` ('Fetch from remote') node takes an image input. This should be your final image than you want to get back from your second instance (make sure not to route it back into itself). This node will wait for the second image to be generated (there's currently no preview/progress bar).
+
+Workflow JSON: [NetDistSimple.json](https://github.com/city96/ComfyUI_NetDist/files/13825326/NetDistSimple.json)
+
+![NetDistSimple](https://github.com/city96/ComfyUI_NetDist/assets/125218114/dce5a155-2ffa-4979-b184-03de168beecb)
+
+#### Simple multi-machine
+
+You can kind of scale the example above by connecting more of the simple queue nodes together, but the seed is a bit jank and you can get duplicate images if you try and reuse it. I guess just set the seed to randomized on both.
+
+![NetDistMulti](https://github.com/city96/ComfyUI_NetDist/assets/125218114/2a0358aa-ab8e-47e2-82a2-7a27a17d0130)
+
+#### Advanced
+
+This is mostly meant for more "advanced" setups with more than two GPUs. It allows easier per-batch overrides as well as setting a default batch size.
+
+It also allows using a workflow JSON as an input. To allow any workflow to run, the final image can be set to "any" instead of the default "final_image" (which would require the `FetchRemote` node to be in the workflow).
+
+I have nodes to save/load the workflows, but ideally there would be some nodes to also edit them - search and replace seed, etc. PRs welcome ;P
+
+Workflow JSON: [NetDistAdvanced.json](https://github.com/city96/ComfyUI_NetDist/files/13825337/NetDistAdvanced.json)
+
+![NetDistAdvanced](https://github.com/city96/ComfyUI_NetDist/assets/125218114/851c1ee6-edcf-4489-bab1-92ab9c5ef15e)
+
+(This needs a fake image input to trigger, you can just give it a blank image).
+
+![NetDistSaved](https://github.com/city96/ComfyUI_NetDist/assets/125218114/a39b5117-af1b-4f2c-a94e-5a330acc8ea4)
+
+
 ### Remote images
 The `LoadImageUrl` ('Load Image (URL)') Node acts just like the normal 'Load Image' node.
 
@@ -24,27 +65,12 @@ The `SaveImageUrl` ('Save Image (URL)') Node sends a POST request to the target 
 - The filenames are **not** guaranteed to be unique across batches since they aren't saved locally. You should handle this server-side.
 - No data is written to disk on the server.
 
-### Local Remote control
-You will need at least two different ComfyUI instances. You can use two local GPUs by setting different `--port [port]` and `--cuda-device [number]` launch arguments.
-
-The following video is an example of a multi-machine workflow. The `CombineImage` nodes aren't required, they just merge the output images into a single Preview.
-
-https://user-images.githubusercontent.com/125218114/234095447-85bd5111-d407-437a-a270-d159876b3a2a.mp4
-
-**Chaining the seed is required**, as this allows each node to increment the seed (by `node_id*batch_size`). Simply connect the seed output of the first node to the seed input of the next one and eventually into the KSampler.
-
-The `FetchRemote` ('Fetch from remote') node takes an image input, this should be your final image (make sure not to route it back into itself)
-
-The `QueueRemote` ('Queue on remote') node will start the entire current workflow on the remote ComfyUI instance, with some changes:
-- Disable all QueueRemote images (to stop recursion)
-- Remove all SaveImage and PreviewImage nodes (not needed/makes it so there is only a single output)
-- Replaces the `FetchRemote` ('Fetch from remote') node with a PreviewImage node, since this will be the only output
-- The `FetchRemote` node (on the current workflow) will wait for the current job to finish on the remote machine.
 
 ### Things you probably shouldn't do:
-- Have more `FetchRemote` nodes than `QueueRemote` ones.
+- Queue a workflow on the same client multiple times.
+- ~~Expect this to work smoothly.~~
 
 ## Roadmap
 - Fix some edge cases, like linux controlling windows (`os.sep` mismatch).
-- Switch to per-client batchsize.
-- Upload rest of control software (external scheduler).
+- Better workflow editing for static workflows.
+- Handle multiple separate image output nodes.
