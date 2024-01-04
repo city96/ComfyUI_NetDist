@@ -1,44 +1,22 @@
-NODE_CLASS_MAPPINGS = {}
-NODE_DISPLAY_NAME_MAPPINGS = {}
+# only import if running as a custom node
+try:
+	import comfy.utils
+except ImportError:
+	pass
+else:
+	NODE_CLASS_MAPPINGS = {}
 
-def remote_control():
-	global NODE_CLASS_MAPPINGS
-	global NODE_DISPLAY_NAME_MAPPINGS
-	from .nodes.remote_control import QueueRemote, FetchRemote
-	NODE_CLASS_MAPPINGS.update({
-		"QueueRemote": QueueRemote,
-		"FetchRemote": FetchRemote,
-	})
-	NODE_DISPLAY_NAME_MAPPINGS.update({
-		"QueueRemote": "Queue on remote",
-		"FetchRemote": "Fetch from remote",
-	})
+	from .nodes.simple import NODE_CLASS_MAPPINGS as NetNodes
+	NODE_CLASS_MAPPINGS.update(NetNodes)
 
-def remote_images():
-	global NODE_CLASS_MAPPINGS
-	global NODE_DISPLAY_NAME_MAPPINGS
-	from .nodes.remote_images import LoadImageUrl, SaveImageUrl
-	NODE_CLASS_MAPPINGS.update({
-		"LoadImageUrl": LoadImageUrl,
-		"SaveImageUrl": SaveImageUrl,
-	})
-	NODE_DISPLAY_NAME_MAPPINGS.update({
-		"LoadImageUrl": "Load Image (URL)",
-		"SaveImageUrl": "Save Image (URL)",
-	})
+	from .nodes.advanced import NODE_CLASS_MAPPINGS as AdvNodes
+	NODE_CLASS_MAPPINGS.update(AdvNodes)
 
-def remote_misc():
-	global NODE_CLASS_MAPPINGS
-	global NODE_DISPLAY_NAME_MAPPINGS
-	from .nodes.misc import CombineImageBatch
-	NODE_CLASS_MAPPINGS.update({
-		"CombineImageBatch": CombineImageBatch,
-	})
-	NODE_DISPLAY_NAME_MAPPINGS.update({
-		"CombineImageBatch": "Combine images",
-	})
+	from .nodes.images import NODE_CLASS_MAPPINGS as ImgNodes
+	NODE_CLASS_MAPPINGS.update(ImgNodes)
 
-print("Loading network distribution node pack")
-remote_control()
-remote_images()
-remote_misc()
+	from .nodes.workflows import NODE_CLASS_MAPPINGS as WrkNodes
+	NODE_CLASS_MAPPINGS.update(WrkNodes)
+
+	NODE_DISPLAY_NAME_MAPPINGS = {k:v.TITLE for k,v in NODE_CLASS_MAPPINGS.items()}
+	__all__ = ['NODE_CLASS_MAPPINGS', 'NODE_DISPLAY_NAME_MAPPINGS']

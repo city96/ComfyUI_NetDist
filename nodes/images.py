@@ -22,7 +22,8 @@ class LoadImageUrl:
 
 	RETURN_TYPES = ("IMAGE", "MASK")
 	FUNCTION = "load_image_url"
-	CATEGORY = "remote"
+	CATEGORY = "remote/image"
+	TITLE = "Load Image (URL)"
 
 	def load_image_url(self, url):
 		with requests.get(url, stream=True) as r:
@@ -57,8 +58,9 @@ class SaveImageUrl:
 	RETURN_TYPES = ()
 	OUTPUT_NODE = True
 	FUNCTION = "save_images"
-	CATEGORY = "remote"
-	
+	CATEGORY = "remote/image"
+	TITLE = "Save Image (URL)"
+
 	def save_images(self, images, url, data_format, filename_prefix="ComfyUI", prompt=None, extra_pnginfo=None):
 		filename = os.path.basename(os.path.normpath(filename_prefix))
 
@@ -86,3 +88,40 @@ class SaveImageUrl:
 		with requests.post(url, json=data) as r:
 			r.raise_for_status()
 		return ()
+
+class CombineImageBatch:
+	"""
+	This isn't needed anymore but I used it in too many places so I'm keeping it...
+	"""
+	def __init__(self):
+		pass
+
+	@classmethod
+	def INPUT_TYPES(s):
+		return {
+			"required": {
+				"images_a": ("IMAGE",),
+				"images_b": ("IMAGE",),
+			}
+		}
+
+	RETURN_TYPES = ("IMAGE",)
+	RETURN_NAMES = ("images",)
+	FUNCTION = "combine_images"
+	CATEGORY = "remote/image"
+	TITLE = "Combine images"
+
+	def combine_images(self,images_a,images_b):
+		try:
+			out = torch.cat((images_a,images_b), 0)
+		except RuntimeError:
+			print(f"Imagine size mismatch! {images_a.size()}, {images_b.size()}")
+			out = images_a
+		return (out,)
+
+
+NODE_CLASS_MAPPINGS = {
+	"LoadImageUrl" : LoadImageUrl,
+	"SaveImageUrl" : SaveImageUrl,
+	"CombineImageBatch" : CombineImageBatch,
+}
