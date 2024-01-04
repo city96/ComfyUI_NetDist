@@ -89,6 +89,6 @@ class RemoteQueueSimple():
 		return uuid if trigger == "on_change" else str(time.time())
 
 NODE_CLASS_MAPPINGS = {
-	"FetchRemote"       : FetchRemote,
 	"RemoteQueueSimple" : RemoteQueueSimple,
+	"FetchRemote"       : FetchRemote,
 }

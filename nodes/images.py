@@ -22,7 +22,7 @@ class LoadImageUrl:
 
 	RETURN_TYPES = ("IMAGE", "MASK")
 	FUNCTION = "load_image_url"
-	CATEGORY = "remote"
+	CATEGORY = "remote/image"
 	TITLE = "Load Image (URL)"
 
 	def load_image_url(self, url):
@@ -58,7 +58,7 @@ class SaveImageUrl:
 	RETURN_TYPES = ()
 	OUTPUT_NODE = True
 	FUNCTION = "save_images"
-	CATEGORY = "remote"
+	CATEGORY = "remote/image"
 	TITLE = "Save Image (URL)"
 
 	def save_images(self, images, url, data_format, filename_prefix="ComfyUI", prompt=None, extra_pnginfo=None):
@@ -90,6 +90,9 @@ class SaveImageUrl:
 		return ()
 
 class CombineImageBatch:
+	"""
+	This isn't needed anymore but I used it in too many places so I'm keeping it...
+	"""
 	def __init__(self):
 		pass
 
@@ -105,7 +108,7 @@ class CombineImageBatch:
 	RETURN_TYPES = ("IMAGE",)
 	RETURN_NAMES = ("images",)
 	FUNCTION = "combine_images"
-	CATEGORY = "remote/misc"
+	CATEGORY = "remote/image"
 	TITLE = "Combine images"
 
 	def combine_images(self,images_a,images_b):
