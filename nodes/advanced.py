@@ -75,6 +75,7 @@ class RemoteQueueWorker:
 				}),
 				"batch_override": ("INT", {"default": 0, "min": 0, "max": 8}),
 				"enabled": (["true", "false", "remote"],{"default": "true"}),
+				"outputs": (["final_image", "any"],{"default":"final_image"}),
 			}
 		}
 
@@ -84,7 +85,7 @@ class RemoteQueueWorker:
 	CATEGORY = "remote/advanced"
 	TITLE = "Queue on remote (worker)"
 
-	def queue(self, remote_chain, remote_url, batch_override, enabled):
+	def queue(self, remote_chain, remote_url, batch_override, enabled, outputs):
 		current_offset = remote_chain["seed_offset"]
 		remote_chain["seed_offset"] += 1 if batch_override == 0 else batch_override
 		if enabled == "false":
@@ -101,7 +102,8 @@ class RemoteQueueWorker:
 		dispatch_to_remote(
 			remote_url,
 			remote_chain["prompt"],
-			remote_chain["job_id"]
+			remote_chain["job_id"],
+			outputs,
 		)
 		remote_info = {
 			"remote_url" : remote_url,

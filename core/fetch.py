@@ -23,7 +23,11 @@ def wait_for_job(remote_url, job_id):
 			continue
 		for i,d in data.items():
 			if d["prompt"][3].get("job_id") == job_id:
-				return d["outputs"][list(d["outputs"].keys())[-1]].get("images")
+				# this needs to be less jank
+				if len(d["outputs"].keys()) > 0:
+					return d["outputs"][list(d["outputs"].keys())[-1]].get("images")
+				else:
+					return []
 		# todo: check if it's actually in the queue to avoid waiting forever
 		time.sleep(POLLING)
 	raise OSError("Failed to fetch image from remote client!")

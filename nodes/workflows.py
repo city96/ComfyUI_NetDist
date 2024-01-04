@@ -53,7 +53,7 @@ class LoadDiskWorkflowJSON:
 	TITLE = "Load workflow (disk)"
 
 	def load_workflow(self, workflow):
-		json_path = folder_paths.get_annotated_filepath(cond)
+		json_path = folder_paths.get_annotated_filepath(workflow)
 		with open(json_path) as f:
 			data = json.loads(f.read())
 		return (data,)

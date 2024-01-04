@@ -39,12 +39,22 @@ def clear_remote_queue(remote_url):
 
 def get_remote_os(remote_url):
 	url = f"{remote_url}/system_stats"
-	r = requests.get(url)
+	r = requests.get(url, timeout=4)
 	r.raise_for_status()
 	data = r.json()
 	return data["system"]["os"]
 
-def dispatch_to_remote(remote_url, prompt, job_id=f"{get_client_id()}-unknown"):
+def get_output_nodes(remote_url):
+	# I'm 90% sure this could just use the
+	# list from the host but better safe than sorry
+	url = f"{remote_url}/object_info"
+	r = requests.get(url, timeout=4)
+	r.raise_for_status()
+	data = r.json()
+	out = [k for k, v in data.items() if v.get("output_node")]
+	return out
+
+def dispatch_to_remote(remote_url, prompt, job_id=f"{get_client_id()}-unknown", outputs="final_image"):
 	### PROMPT LOGIC ###
 	prompt = deepcopy(prompt)
 	to_del = []
@@ -78,6 +88,7 @@ def dispatch_to_remote(remote_url, prompt, job_id=f"{get_client_id()}-unknown"):
 			else:
 				prompt[i]["inputs"]["enabled"] = "false"
 
+	banned = [] if outputs == "any" else get_output_nodes(remote_url)
 	output = None
 	for i in prompt.keys():
 		# only leave current fetch but replace with PreviewImage
@@ -90,9 +101,10 @@ def dispatch_to_remote(remote_url, prompt, job_id=f"{get_client_id()}-unknown"):
 			recursive_node_deletion(i)
 		# do not save output on remote
 		# todo: other output types
-		if prompt[i]["class_type"] in ["SaveImage", "PreviewImage"]:
+		if prompt[i]["class_type"] in banned:
 			recursive_node_deletion(i)
-	prompt[str(max([int(x) for x in prompt.keys()])+1)] = output
+	if output:
+		prompt[str(max([int(x) for x in prompt.keys()])+1)] = output
 	for i in to_del: del prompt[i]
 
 	### OS LOGIC ###
