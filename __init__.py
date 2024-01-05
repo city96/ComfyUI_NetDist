@@ -15,6 +15,9 @@ else:
 	from .nodes.images import NODE_CLASS_MAPPINGS as ImgNodes
 	NODE_CLASS_MAPPINGS.update(ImgNodes)
 
+	from .nodes.latents import NODE_CLASS_MAPPINGS as LatNodes
+	NODE_CLASS_MAPPINGS.update(LatNodes)
+
 	from .nodes.workflows import NODE_CLASS_MAPPINGS as WrkNodes
 	NODE_CLASS_MAPPINGS.update(WrkNodes)
 

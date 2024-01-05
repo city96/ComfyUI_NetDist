@@ -55,7 +55,6 @@ Workflow JSON: [NetDistAdvancedV2.json](https://github.com/city96/ComfyUI_NetDis
 
 ![NetDistSaved](https://github.com/city96/ComfyUI_NetDist/assets/125218114/a39b5117-af1b-4f2c-a94e-5a330acc8ea4)
 
-
 ### Remote images
 The `LoadImageUrl` ('Load Image (URL)') Node acts just like the normal 'Load Image' node.
 
@@ -65,9 +64,25 @@ The `SaveImageUrl` ('Save Image (URL)') Node sends a POST request to the target 
 - The filenames are **not** guaranteed to be unique across batches since they aren't saved locally. You should handle this server-side.
 - No data is written to disk on the server.
 
+### Remote latents
+
+This node pack has a set of nodes which should (in theory) allow you to pass latents between the nodes seamlessly. A node to save the input latent as a `.npy` file is provided. This node also returns the filename of the saved latent, which can then be loaded by the other instance.
+
+To load a latent from the other instance, you can plug the filename into this URL:
+
+```
+# change the filename with a string replacement node.
+http://127.0.0.1:8188/view?filename=ComfyUI_00001_.latent&type=output`
+# To load them from the input folder instead, change type to 'input'
+http://127.0.0.1:8188/view?filename=TestLatent.npy&type=input
+```
+
+The `LoadLatentNumpy` node can also load the default safetensor latents, the npy ones (simple numpy file containing just the latent in the standard torch format) as well as the sd_scripts npz cache files.
+
+![LatentSave](https://github.com/city96/ComfyUI_NetDist/assets/125218114/cd68d8dc-bd96-4018-82c9-400337fc5f80)
 
 ### Things you probably shouldn't do:
-- Queue a workflow on the same client multiple times.
+- Queue a workflow on the same remote worker multiple times from the same client.
 - ~~Expect this to work smoothly.~~
 
 ## Roadmap
