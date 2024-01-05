@@ -88,7 +88,7 @@ def dispatch_to_remote(remote_url, prompt, job_id=f"{get_client_id()}-unknown", 
 			else:
 				prompt[i]["inputs"]["enabled"] = "false"
 
-	banned = [] if outputs == "any" else get_output_nodes(remote_url)
+	banned = [] if outputs == "any" else ["PreviewImage", "SaveImage"] # get_output_nodes(remote_url)
 	output = None
 	for i in prompt.keys():
 		# only leave current fetch but replace with PreviewImage
@@ -97,10 +97,10 @@ def dispatch_to_remote(remote_url, prompt, job_id=f"{get_client_id()}-unknown", 
 				output = {
 					"inputs": {"images": prompt[i]["inputs"]["final_image"]},
 					"class_type": 'PreviewImage',
+					"final_output": True, # might allow multiple outputs with an ID?
 				}
 			recursive_node_deletion(i)
 		# do not save output on remote
-		# todo: other output types
 		if prompt[i]["class_type"] in banned:
 			recursive_node_deletion(i)
 	if output:

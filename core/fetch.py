@@ -7,6 +7,14 @@ from PIL import Image
 
 POLLING = 0.5
 
+def get_job_output(inputs, outputs):
+	output_id = list(outputs.keys())[-1] # fallback to last
+	for i,d in inputs.items():
+		if d.get("final_output") and i in outputs.keys():
+			output_id = i
+			break
+	return outputs[output_id].get("images", [])
+
 def wait_for_job(remote_url, job_id):
 	fail = 0
 	while fail <= 3:
@@ -25,7 +33,7 @@ def wait_for_job(remote_url, job_id):
 			if d["prompt"][3].get("job_id") == job_id:
 				# this needs to be less jank
 				if len(d["outputs"].keys()) > 0:
-					return d["outputs"][list(d["outputs"].keys())[-1]].get("images")
+					return get_job_output(d["prompt"][2], d["outputs"])
 				else:
 					return []
 		# todo: check if it's actually in the queue to avoid waiting forever

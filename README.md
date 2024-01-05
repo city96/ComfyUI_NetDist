@@ -47,7 +47,7 @@ It also allows using a workflow JSON as an input. To allow any workflow to run, 
 
 I have nodes to save/load the workflows, but ideally there would be some nodes to also edit them - search and replace seed, etc. PRs welcome ;P
 
-Workflow JSON: [NetDistAdvanced.json](https://github.com/city96/ComfyUI_NetDist/files/13825337/NetDistAdvanced.json)
+Workflow JSON: [NetDistAdvancedV2.json](https://github.com/city96/ComfyUI_NetDist/files/13843005/NetDistAdvancedV2.json)
 
 ![NetDistAdvanced](https://github.com/city96/ComfyUI_NetDist/assets/125218114/851c1ee6-edcf-4489-bab1-92ab9c5ef15e)
 
