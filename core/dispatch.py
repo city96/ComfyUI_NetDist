@@ -130,6 +130,11 @@ def dispatch_to_remote(remote_url, prompt, job_id=f"{get_client_id()}-unknown", 
 			"job_id": job_id,
 		}
 	}
-	ar = requests.post(f"{remote_url}/prompt", json=data, timeout=4)
+	ar = requests.post(
+		f"{remote_url}/prompt",
+		data    = json.dumps(data),
+		headers = {"Content-Type": "application/json"},
+		timeout = 4,
+	)
 	ar.raise_for_status()
 	return
